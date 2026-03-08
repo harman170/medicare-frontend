@@ -15,7 +15,8 @@ console.log('===================');
 
 const instance = axios.create({
   baseURL: API_BASE_URL,
-  withCredentials: true,
+  // We are not using cookies for auth, so do NOT send credentials.
+  // This avoids strict CORS rules that conflict with Access-Control-Allow-Origin: *.
 });
 
 export default instance;

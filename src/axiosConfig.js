@@ -1,4 +1,4 @@
-// src/axiosConfig.js - Updated for production backend
+// src/axiosConfig.js
 
 import axios from "axios";
 

@@ -34,7 +34,7 @@ const MedicineSearchPage = () => {
     const fetchCities = async () => {
       try {
         console.log('Fetching cities from backend...');
-        const response = await axios.get('http://localhost:5000/api/donors/cities');
+        const response = await axios.get('/api/donors/cities');
         console.log('Cities API response:', response.data);
 
         if (response.data.cities && response.data.cities.length > 0) {
@@ -57,7 +57,7 @@ const MedicineSearchPage = () => {
     const fetchMedicines = async () => {
       try {
         console.log('Fetching medicines from backend...');
-        const response = await axios.get('http://localhost:5000/api/donors/medicines');
+        const response = await axios.get('/api/donors/medicines');
         console.log('Medicines API response:', response.data);
 
         if (response.data.medicines && response.data.medicines.length > 0) {

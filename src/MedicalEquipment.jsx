@@ -88,7 +88,7 @@ const MedicalDonationPlatform = () => {
     }
 
     try {
-      const res = await axios.get('http://localhost:5000/api/donations');
+      const res = await axios.get('/api/donations');
       const foundDonation = res.data.find(donation =>
         donation.email.toLowerCase() === searchEmail.toLowerCase().trim()
       );
@@ -150,7 +150,7 @@ const MedicalDonationPlatform = () => {
     }
 
     try {
-      const res = await axios.get('http://localhost:5000/api/donations');
+      const res = await axios.get('/api/donations');
       const filtered = res.data.filter(donation =>
         donation.email.toLowerCase().includes(searchEmail.toLowerCase())
       );
@@ -176,7 +176,7 @@ const MedicalDonationPlatform = () => {
   const fetchAllDonations = async () => {
     try {
       console.log('Fetching all donations...');
-      const res = await axios.get('http://localhost:5000/api/donations');
+      const res = await axios.get('/api/donations');
       console.log('All donations response:', res.data);
 
       if (res.data.length === 0) {
@@ -224,8 +224,8 @@ const MedicalDonationPlatform = () => {
 
     try {
       const url = isEditing && donationId
-        ? `http://localhost:5000/api/donations/${donationId}`
-        : 'http://localhost:5000/api/donations';
+        ? `/api/donations/${donationId}`
+        : '/api/donations';
 
       const method = isEditing && donationId ? 'put' : 'post';
 

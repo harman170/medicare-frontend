@@ -4,6 +4,7 @@ import {
   Briefcase, Upload, Search, Save, Edit, Heart,
   AlertCircle, CheckCircle, Image, Home
 } from 'lucide-react';
+import apiClient, { API_BASE_URL } from './axiosConfig';
 import axios from 'axios';
 
 
@@ -55,7 +56,7 @@ const DonorForm = () => {
     if (!form.emailid) return alert("Please enter an email ID first.");
     setIsLoading(true);
     try {
-      const res = await axios.get(`http://localhost:5000/api/donors/fetch/${form.emailid}`);
+      const res = await apiClient.get(`/donors/fetch/${form.emailid}`);
       if (res.data.status) {
         const data = res.data.donor;
         const { medicines, ...rest } = data;

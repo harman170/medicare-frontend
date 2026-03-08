@@ -2,17 +2,20 @@
 
 import axios from "axios";
 
-// Use environment variable for API URL, fallback to localhost for development
-const baseURL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+// Root of backend (Render or local)
+const rootURL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
+// This is what all API calls should use
+export const API_BASE_URL = `${rootURL}/api`;
 
 console.log('=== AXIOS CONFIG ===');
 console.log('Environment VITE_API_URL:', import.meta.env.VITE_API_URL);
-console.log('Final baseURL:', baseURL);
+console.log('Final baseURL:', API_BASE_URL);
 console.log('===================');
 
 const instance = axios.create({
-    baseURL: baseURL,
-    withCredentials: true, // if using cookies for auth
+  baseURL: API_BASE_URL,
+  withCredentials: true,
 });
 
 export default instance;

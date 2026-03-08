@@ -1437,8 +1437,8 @@ import {
   Stethoscope, Pill, Facebook, Twitter, Linkedin, Instagram
 } from 'lucide-react';
 
-// API Configuration
-const API_BASE_URL = 'http://localhost:5000/api';
+// API Configuration - Import from axiosConfig
+import apiClient, { API_BASE_URL } from '../axiosConfig';
 const AUTH_TOKEN_KEY = 'medishare_auth_token';
 const REFRESH_TOKEN_KEY = 'medishare_refresh_token';
 const USER_DATA_KEY = 'medishare_user_data';
@@ -1557,9 +1557,7 @@ const authUtils = {
 };
 
 // Enhanced API instance with automatic token refresh
-const api = axios.create({
-  baseURL: API_BASE_URL,
-});
+const api = apiClient;
 
 let isRefreshing = false;
 let failedQueue = [];
@@ -1621,7 +1619,7 @@ api.interceptors.response.use(
       if (refreshToken && authUtils.isRefreshTokenValid()) {
         console.log('🔄 Attempting automatic token refresh...');
         try {
-          const response = await axios.post(`${API_BASE_URL}/users/refresh-token`, {
+          const response = await api.post('/users/refresh-token', {
             refreshToken
           });
 
@@ -1719,7 +1717,7 @@ const authAPI = {
   refreshToken: async () => {
     try {
       const refreshToken = authUtils.getRefreshToken();
-      const response = await axios.post(`${API_BASE_URL}/users/refresh-token`, {
+      const response = await api.post('/users/refresh-token', {
         refreshToken
       });
 

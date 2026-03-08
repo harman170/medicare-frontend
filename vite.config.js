@@ -1,12 +1,7 @@
-import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 // https://vitejs.dev/config/
-// export default defineConfig({
-//     plugins: [react()],
-// })
-
-export default defineConfig({
+export default {
     plugins: [react()],
     build: {
         outDir: 'dist',
@@ -18,4 +13,4 @@ export default defineConfig({
             protocol: 'ws' // Ensure WebSocket protocol
         }
     }
-});
+}

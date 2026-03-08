@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   User, Mail, Calendar, MapPin, Phone, GraduationCap,
   Briefcase, Upload, Search, Save, Edit, Heart,
@@ -8,11 +8,21 @@ import axios from 'axios';
 
 
 const DonorForm = () => {
+  const [userEmail, setUserEmail] = useState('');
   const [form, setForm] = useState({
     emailid: '', name: '', age: '', gender: '',
     curaddress: '', curcity: '', contact: '',
     qualification: '', occupation: ''
   });
+
+  // Get logged-in user's email from localStorage
+  useEffect(() => {
+    const email = localStorage.getItem('userEmail');
+    if (email) {
+      setUserEmail(email);
+      setForm(prev => ({ ...prev, emailid: email }));
+    }
+  }, []);
 
   const [adhaarpic, setAdhaarPic] = useState(null);
   const [profilepic, setProfilePic] = useState(null);
@@ -114,11 +124,22 @@ if (profilepic) fd.append("profilepic", profilepic);
   return (
   //  Container div with padding and max-width
     <div className="p-4 max-w-5xl mx-auto">
-      {/* Header with heart icon and title */}
-      <div className="mb-6 flex gap-4 items-center">
-  <Heart className="h-8 w-8 text-red-500" />
-  <h1 className="text-3xl font-bold">Donor Registration</h1>
-</div>
+      {/* Header with heart icon, title, and Gmail display */}
+      <div className="mb-6 flex justify-between items-center">
+        <div className="flex gap-4 items-center">
+          <Heart className="h-8 w-8 text-red-500" />
+          <h1 className="text-3xl font-bold">Donor Registration</h1>
+        </div>
+        {userEmail && (
+          <div className="flex items-center space-x-3 bg-gray-50 px-4 py-2 rounded-lg">
+            <Mail className="w-4 h-4 text-gray-600" />
+            <div className="text-right">
+              <p className="text-xs text-gray-500">Logged in as</p>
+              <p className="text-sm font-medium text-gray-800">{userEmail}</p>
+            </div>
+          </div>
+        )}
+      </div>
 {/* Email input with fetch button */}
      <div className="mb-6 flex gap-4">
         <Mail className="h-5 w-5 text-gray-500 mt-2" />

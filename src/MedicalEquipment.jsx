@@ -1,18 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Heart, ChevronDown, Plus, Check, Gift, Users, MapPin,
   Phone, Mail, Package, Edit, RefreshCw, Trash2, User,
-  Building, Clock, CheckCircle, X, Search
+  Building, Clock, CheckCircle, X, Search, Eye
 } from 'lucide-react';
 
 import axios from 'axios';
 
 const MedicalDonationPlatform = () => {
+  const [userEmail, setUserEmail] = useState('');
   const [selectedEquipment, setSelectedEquipment] = useState({});
   const [showSuccess, setShowSuccess] = useState(false);
   const [showDonationsList, setShowDonationsList] = useState(false);
   const [availableDonations, setAvailableDonations] = useState([]);
   const [searchEmail, setSearchEmail] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
+  const [donationId, setDonationId] = useState('');
   const [donorInfo, setDonorInfo] = useState({
     name: '',
     email: '',
@@ -23,6 +26,16 @@ const MedicalDonationPlatform = () => {
 
   const [customCity, setCustomCity] = useState('');
   const [showCustomCity, setShowCustomCity] = useState(false);
+
+  // Get logged-in user's email from localStorage
+  useEffect(() => {
+    const email = localStorage.getItem('userEmail');
+    if (email) {
+      setUserEmail(email);
+      setSearchEmail(email);
+      setDonorInfo(prev => ({ ...prev, email }));
+    }
+  }, []);
 
   const equipmentTypes = {
     'Personal Care Equipment': ['Adult Diapers', 'Spectacles', 'Hearing Aids', 'Thermometers', 'Walking Aids', 'Compression Garments', 'Wheelchairs', 'Stethoscopes', 'Blood pressure monitors', 'Nebulizers', 'Infusion pumps'],
@@ -99,24 +112,26 @@ const MedicalDonationPlatform = () => {
       email: donation.email || '',
       phone: donation.phone || '',
       location: donation.location || '',
-      city: donation.city || '',
+      city: donation.city || ''
     });
 
-    // Fill equipment
-    const equipmentMap = {};
+    // Set editing state
+    setIsEditing(true);
+    setDonationId(donation._id || '');
+
+    // Load equipment selections
+    const equipment = {};
     if (donation.equipment && Array.isArray(donation.equipment)) {
       donation.equipment.forEach(item => {
-        const key = `${item.category}-${item.item}`;
-        equipmentMap[key] = {
-          category: item.category,
-          item: item.item,
+        const key = `${item.category}-${item.name}`;
+        equipment[key] = {
           quantity: item.quantity || 1,
-          status: item.status || '',
-          situation: item.situation || ''
+          status: item.condition || '',
+          situation: item.workingStatus || ''
         };
       });
     }
-    setSelectedEquipment(equipmentMap);
+    setSelectedEquipment(equipment);
 
     // Handle custom city
     const isCustomCity = donation.city && !commonCities.slice(0, -1).includes(donation.city);
@@ -157,75 +172,96 @@ const MedicalDonationPlatform = () => {
     }
   };
 
-  const updateAllEquipment = async () => {
+  // Fetch all donations
+  const fetchAllDonations = async () => {
     try {
-      const { data } = await axios.get('http://localhost:5000/api/donations');
+      console.log('Fetching all donations...');
+      const res = await axios.get('http://localhost:5000/api/donations');
+      console.log('All donations response:', res.data);
 
-      if (data.length === 0) {
-        alert('No donations to update');
+      if (res.data.length === 0) {
+        alert('No donations found in database');
         return;
       }
 
-      const donationToUpdate = data.find(d => d.email === donorInfo.email);
-      if (!donationToUpdate) {
-        alert('No donation found for current email');
-        return;
-      }
-
-      const cleanedEquipment = Object.values(selectedEquipment).map(item => ({
-        category: item.category,
-        item: item.item,
-        quantity: item.quantity,
-        status: item.status || '',
-        situation: item.situation || ''
-      }));
-
-      const updatedDonation = {
-        name: donorInfo.name,
-        email: donorInfo.email,
-        phone: donorInfo.phone,
-        city: showCustomCity ? customCity : donorInfo.city,
-        location: donorInfo.location,
-        equipment: cleanedEquipment
-      };
-
-      console.log("✅ Final data to update:", updatedDonation);
-
-      await axios.put(`http://localhost:5000/api/donations/${donationToUpdate._id}`, updatedDonation);
-      alert('Updated donation successfully (check database)');
-    } catch (error) {
-      console.error('❌ Update failed:', error);
-      alert('Failed to update donation');
+      setAvailableDonations(res.data);
+      setShowDonationsList(true);
+      console.log('Set donations list to show:', res.data.length, 'items');
+    } catch (err) {
+      console.error('Error fetching all donations:', err);
+      alert('Failed to fetch all donations');
     }
   };
 
   const submitDonation = async () => {
     const finalCity = showCustomCity ? customCity : donorInfo.city;
     const donationData = {
-      ...donorInfo,
+      name: donorInfo.name,
+      email: donorInfo.email,
+      phone: donorInfo.phone,
       city: finalCity,
+      location: donorInfo.location,
       equipment: Object.values(selectedEquipment)
     };
 
+    console.log('=== EQUIPMENT SUBMISSION DEBUG ===');
+    console.log('Donor info:', donorInfo);
+    console.log('Selected equipment:', selectedEquipment);
+    console.log('Final city:', finalCity);
+    console.log('Donation data:', donationData);
+    console.log('Validation check:');
+    console.log('- Name:', donationData.name);
+    console.log('- Email:', donationData.email);
+    console.log('- Equipment length:', donationData.equipment.length);
+    console.log('Is editing:', isEditing);
+    console.log('Donation ID:', donationId);
+
     if (!donationData.name || !donationData.email || donationData.equipment.length === 0) {
+      console.log('VALIDATION FAILED');
       alert('Please fill in all required fields and select at least one item.');
       return;
     }
 
     try {
-      await axios.post('http://localhost:5000/api/donations', donationData);
+      const url = isEditing && donationId
+        ? `http://localhost:5000/api/donations/${donationId}`
+        : 'http://localhost:5000/api/donations';
+
+      const method = isEditing && donationId ? 'put' : 'post';
+
+      console.log('Making request:', { method, url, data: donationData });
+
+      const response = isEditing && donationId
+        ? await axios.put(url, donationData)
+        : await axios.post(url, donationData);
+
+      console.log('Server response:', response.data);
+
+      alert(isEditing ? 'Donation updated successfully!' : 'Donation submitted successfully!');
+
       setShowSuccess(true);
       setTimeout(() => {
         setShowSuccess(false);
-        setSelectedEquipment({});
-        setDonorInfo({ name: '', email: '', phone: '', location: '', city: '' });
-        setCustomCity('');
-        setShowCustomCity(false);
+        resetForm();
       }, 3000);
     } catch (error) {
-      console.error('Error submitting donation:', error);
-      alert('Failed to submit. Please try again.');
+      console.error('=== EQUIPMENT SUBMISSION ERROR ===');
+      console.error('Full error:', error);
+      console.error('Error status:', error.response?.status);
+      console.error('Error message:', error.response?.data);
+      console.error('Error config:', error.config);
+
+      alert('Failed to submit donation. Please try again.');
     }
+  };
+
+  const resetForm = () => {
+    setSelectedEquipment({});
+    setDonorInfo({ name: '', email: '', phone: '', location: '', city: '' });
+    setCustomCity('');
+    setShowCustomCity(false);
+    setIsEditing(false);
+    setDonationId('');
   };
 
   const totalQuantity = Object.values(selectedEquipment).reduce(
@@ -316,8 +352,17 @@ const MedicalDonationPlatform = () => {
               </div>
             </div>
 
-            {/* Status & Actions */}
+            {/* Gmail Display & Status */}
             <div className="flex items-center space-x-4">
+              {userEmail && (
+                <div className="flex items-center space-x-3 bg-gray-50 px-4 py-2 rounded-lg">
+                  <Mail className="w-4 h-4 text-gray-600" />
+                  <div className="text-right">
+                    <p className="text-xs text-gray-500">Logged in as</p>
+                    <p className="text-sm font-medium text-gray-800">{userEmail}</p>
+                  </div>
+                </div>
+              )}
               {/* Selected Items Counter */}
               {totalQuantity > 0 && (
                 <div className="bg-teal-50 border border-teal-200 rounded-lg px-4 py-2">
@@ -327,39 +372,6 @@ const MedicalDonationPlatform = () => {
                   </div>
                 </div>
               )}
-
-              {/* Email Search Section */}
-              <div className="flex items-center space-x-2">
-                <div className="relative">
-                  <input
-                    type="email"
-                    value={searchEmail}
-                    onChange={(e) => setSearchEmail(e.target.value)}
-                    placeholder="Enter email to fetch donation"
-                    className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 w-64"
-                    onKeyPress={(e) => e.key === 'Enter' && fetchSpecificDonation()}
-                  />
-                  <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                </div>
-                <button
-                  onClick={fetchSpecificDonation}
-                  className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors flex items-center space-x-2"
-                >
-                  <RefreshCw className="w-4 h-4" />
-                  <span>Fetch</span>
-                </button>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex space-x-2">
-                <button
-                  onClick={updateAllEquipment}
-                  className="px-4 py-2 bg-teal-100 text-teal-700 rounded-lg hover:bg-teal-200 transition-colors flex items-center space-x-2"
-                >
-                  <Edit className="w-4 h-4" />
-                  <span>Update</span>
-                </button>
-              </div>
             </div>
           </div>
         </div>
@@ -377,7 +389,7 @@ const MedicalDonationPlatform = () => {
                   <Package className="h-6 w-6 text-teal-600" />
                   <h2 className="text-xl font-semibold text-gray-900">Medical Equipment Selection</h2>
                 </div>
-                <p className="text-sm text-gray-500 mt-1">Choose the medical equipment you'd like to donate</p>
+                <p className="text-sm text-gray-500 mt-1">Choose medical equipment you'd like to donate</p>
               </div>
 
               <div className="p-6 space-y-8">
@@ -541,25 +553,36 @@ const MedicalDonationPlatform = () => {
                 </div>
 
                 {/* Location Information */}
-                <div className="space-y-4 pt-4 border-t border-gray-100">
+                <div className="space-y-4">
                   <h4 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Location Details</h4>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                    <input
+                      type="text"
+                      value={donorInfo.location}
+                      onChange={(e) => setDonorInfo({ ...donorInfo, location: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                      placeholder="Enter your address"
+                    />
+                  </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">City *</label>
                     <select
                       value={showCustomCity ? 'Other' : donorInfo.city}
                       onChange={(e) => {
-                        if (e.target.value === 'Other') {
+                        const value = e.target.value;
+                        if (value === 'Other') {
                           setShowCustomCity(true);
-                          setDonorInfo({ ...donorInfo, city: '' });
                         } else {
                           setShowCustomCity(false);
-                          setDonorInfo({ ...donorInfo, city: e.target.value });
+                          setCustomCity('');
+                          setDonorInfo({ ...donorInfo, city: value });
                         }
                       }}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
                     >
-                      <option value="">Select your city</option>
                       {commonCities.map(city => (
                         <option key={city} value={city}>{city}</option>
                       ))}
@@ -578,42 +601,59 @@ const MedicalDonationPlatform = () => {
                       />
                     </div>
                   )}
+                </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Full Address</label>
-                    <textarea
-                      rows="3"
-                      value={donorInfo.location}
-                      onChange={(e) => setDonorInfo({ ...donorInfo, location: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 resize-none"
-                      placeholder="Enter your complete address"
-                    />
+                {/* Action Buttons */}
+                <div className="mt-6 space-y-3">
+                  <div className="flex gap-3">
+                    <button
+                      onClick={fetchSpecificDonation}
+                      className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center justify-center gap-2"
+                    >
+                      <Search className="w-4 h-4" />
+                      Fetch Donation
+                    </button>
+                    <button
+                      onClick={fetchAllDonations}
+                      className="flex-1 bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700 transition-colors font-medium flex items-center justify-center gap-2"
+                    >
+                      <Eye className="w-4 h-4" />
+                      View All
+                    </button>
                   </div>
                 </div>
 
                 {/* Submit Button */}
-                <div className="pt-6 border-t border-gray-100">
+                <div className="mt-6 space-y-3">
+                  {isEditing && (
+                    <button
+                      onClick={resetForm}
+                      className="w-full bg-gray-500 text-white py-2 rounded-lg hover:bg-gray-600 transition-colors font-medium"
+                    >
+                      Cancel Edit
+                    </button>
+                  )}
                   <button
                     onClick={submitDonation}
-                    disabled={!donorInfo.name || !donorInfo.email || Object.keys(selectedEquipment).length === 0}
-                    className="w-full bg-gradient-to-r from-teal-600 to-cyan-600 text-white py-3 px-4 rounded-lg hover:from-teal-700 hover:to-cyan-700 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed font-semibold flex items-center justify-center space-x-2 transition-all"
+                    className="w-full bg-gradient-to-r from-teal-600 to-cyan-600 text-white py-3 rounded-lg hover:from-teal-700 hover:to-cyan-700 transition-all transform hover:scale-105 font-medium"
                   >
-                    <Gift className="w-5 h-5" />
-                    <span>Submit Donation</span>
+                    <Gift className="w-5 h-5 inline mr-2" />
+                    {isEditing ? 'Update Donation' : 'Submit Donation'}
                   </button>
-
-                  {/* Validation Message */}
-                  {(!donorInfo.name || !donorInfo.email || Object.keys(selectedEquipment).length === 0) && (
-                    <p className="text-xs text-gray-500 mt-2 text-center">
-                      Please fill required fields and select at least one item
-                    </p>
-                  )}
                 </div>
               </div>
             </div>
           </div>
         </div>
       </main>
+
+      {/* Footer */}
+      <div className="text-center mt-8 text-gray-600">
+        <p className="text-sm">
+          By sharing your medical equipment, you're helping make healthcare more accessible to everyone.
+          Thank you for your contribution to the community.
+        </p>
+      </div>
     </div>
   );
 };

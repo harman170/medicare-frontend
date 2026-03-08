@@ -1,7 +1,10 @@
-import React, { useState, useMemo } from 'react';
-import { Search, Plus, Edit, Trash2, Calendar, Package, Building2, AlertTriangle, Filter, SortAsc, User, Clock, Shield, Eye } from 'lucide-react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Search, Plus, Edit, Trash2, Calendar, Package, Building2, AlertTriangle, Filter, SortAsc, User, Clock, Shield, Eye, Mail } from 'lucide-react';
 
 const MedicineListing = () => {
+  const navigate = useNavigate();
+  const [userEmail, setUserEmail] = useState('');
   const [emailId, setEmailId] = useState('');
   const [medicines, setMedicines] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -9,6 +12,15 @@ const MedicineListing = () => {
   const [sortBy, setSortBy] = useState('name');
   const [filterBy, setFilterBy] = useState('all');
   const [showFilters, setShowFilters] = useState(false);
+
+  // Get logged-in user's email from localStorage
+  useEffect(() => {
+    const email = localStorage.getItem('userEmail');
+    if (email) {
+      setUserEmail(email);
+      setEmailId(email);
+    }
+  }, []);
 
   const handleFetch = async () => {
     if (!emailId) {
@@ -34,7 +46,7 @@ const MedicineListing = () => {
 
 
   const handleEdit = (med) => {
-    navigate('/availmed', { state: { formData: med } });
+    navigate('/donor/availmed', { state: { formData: med } });
     console.log('Edit medicine:', med);
   };
 
@@ -141,11 +153,22 @@ const MedicineListing = () => {
       <div className="max-w-7xl mx-auto p-6">
         {/* Header */}
         <div className="bg-white shadow-lg rounded-2xl p-8 mb-8 border border-blue-100">
-          <div className="text-center mb-6">
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent mb-2">
-             Listed Medicines
-            </h1>
-            <p className="text-gray-600">Track and manage your medicine donations efficiently</p>
+          <div className="flex justify-between items-start mb-6">
+            <div className="text-center flex-1">
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent mb-2">
+               Listed Medicines
+              </h1>
+              <p className="text-gray-600">Track and manage your medicine donations efficiently</p>
+            </div>
+            {userEmail && (
+              <div className="flex items-center space-x-3 bg-gray-50 px-4 py-2 rounded-lg ml-4">
+                <Mail className="w-4 h-4 text-gray-600" />
+                <div className="text-right">
+                  <p className="text-xs text-gray-500">Logged in as</p>
+                  <p className="text-sm font-medium text-gray-800">{userEmail}</p>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="flex flex-col lg:flex-row gap-4 items-end">

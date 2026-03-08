@@ -14,6 +14,7 @@ import MedicalDonationPlatform from "./MedicalEquipment";
 import NeedySearch from "./EquiFetch";
 import DonorDashboard from "./Donordash";
 import NeedyDashboard from "./needydash";
+import MedicineSearchPage from "./MedicineSearch";
 const App = () => {
   return (
     <BrowserRouter>
@@ -29,6 +30,7 @@ const App = () => {
                 <Route path="/needy/Needed-Equipment" element={<NeedySearch/>} />
                 <Route path="/donor/Donordash" element={<DonorDashboard/>} />
                 <Route path="/needy/dashboard" element={<NeedyDashboard/>} />
+                <Route path="/needy/medicinesearch" element={<MedicineSearchPage/>} />
 
 
       </Routes>

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Search, MapPin, Pill, Phone, Mail, User, Eye, Calendar, Heart, AlertCircle, CheckCircle, Clock, Package, Building, ExternalLink,Hash } from 'lucide-react';
-import axios from 'axios';
-
+import axios from './axiosConfig';
 
 const FindDonors = () => {
   const [city, setCity] = useState('');
@@ -12,6 +11,19 @@ const FindDonors = () => {
   const [selectedDonor, setSelectedDonor] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
   const [searchedMedicine, setSearchedMedicine] = useState(''); // Store the searched medicine
+
+  const commonCities = [
+    'Mumbai', 'Delhi', 'Bangalore', 'Chennai', 'Kolkata',
+    'Hyderabad', 'Pune', 'Ahmedabad', 'Jaipur', 'Lucknow',
+    'Kanpur', 'Nagpur', 'Indore', 'Surat', 'Bhopal', 'Patna'
+  ];
+
+  const commonMedicines = [
+    'Paracetamol', 'Aspirin', 'Ibuprofen', 'Amoxicillin', 'Azithromycin',
+    'Cetrizine', 'Omeprazole', 'Dolo', 'Crocin', 'Combiflam',
+    'Digene', 'Betadine', 'Volini', 'Vicks', 'Strepsils',
+    'Cough Syrup', 'Vitamin C', 'Insulin', 'Blood Pressure Medicine', 'Other'
+  ];
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -25,20 +37,30 @@ const FindDonors = () => {
     }
 
     try {
-      const res = await fetch(`http://localhost:5000/api/donors/search?city=${encodeURIComponent(city)}&medicine=${encodeURIComponent(medicine)}`);
-      const data = await res.json();
+      console.log('=== SEARCH DEBUG ===');
+      console.log('Searching for:', { city, medicine });
+      console.log('Search URL:', `/api/donors/search?city=${encodeURIComponent(city)}&medicine=${encodeURIComponent(medicine)}`);
 
-      if (!res.ok) {
+      const response = await axios.get(`/api/donors/search?city=${encodeURIComponent(city)}&medicine=${encodeURIComponent(medicine)}`);
+      const data = response.data;
+
+      console.log('Backend response:', data);
+      console.log('Response type:', typeof data);
+      console.log('Is array?', Array.isArray(data));
+
+      if (data.message && !Array.isArray(data)) {
         throw new Error(data.message || 'Failed to search donors');
       }
 
       // Filter donors to only include matching medicines
-      const filteredDonors = data.donors?.map(donor => ({
+      const filteredDonors = data?.map(donor => ({
         ...donor,
         medicines: donor.medicines?.filter(med =>
           med.medicine.toLowerCase().includes(medicine.toLowerCase())
         ) || []
       })).filter(donor => donor.medicines.length > 0) || [];
+
+      console.log('Filtered donors:', filteredDonors);
 
       setDonors(filteredDonors);
       setSearchedMedicine(medicine); // Store the searched medicine
@@ -310,14 +332,19 @@ const FindDonors = () => {
                 <label className="block text-sm font-semibold text-gray-700">City</label>
                 <div className="relative">
                   <MapPin className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-                  <input
-                    type="text"
+                  <select
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Enter city name (e.g., Mumbai)"
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
                     required
-                  />
+                  >
+                    <option value="">Select City</option>
+                    {commonCities.map((cityOption) => (
+                      <option key={cityOption} value={cityOption}>
+                        {cityOption}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
 
@@ -325,14 +352,19 @@ const FindDonors = () => {
                 <label className="block text-sm font-semibold text-gray-700">Medicine</label>
                 <div className="relative">
                   <Pill className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-                  <input
-                    type="text"
+                  <select
                     value={medicine}
                     onChange={(e) => setMedicine(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Enter medicine name (e.g., Paracetamol)"
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
                     required
-                  />
+                  >
+                    <option value="">Select Medicine</option>
+                    {commonMedicines.map((medicineOption) => (
+                      <option key={medicineOption} value={medicineOption}>
+                        {medicineOption}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
             </div>

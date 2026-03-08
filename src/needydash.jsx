@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, Search, Heart, Stethoscope, LogOut } from 'lucide-react';
+import { User, Search, Heart, Stethoscope, LogOut, Mail } from 'lucide-react';
 import { useNavigate } from 'react-router-dom'; // Add this import
 
 const NeedyDashboard = () => {
@@ -29,8 +29,12 @@ const NeedyDashboard = () => {
       <header className="bg-white shadow-sm">
         <div className="max-w-4xl mx-auto px-6 py-4 flex justify-between items-center">
           <h1 className="text-xl font-bold text-gray-800">Needy Dashboard</h1>
-          <div className="flex items-center space-x-2">
-            <span className="text-sm text-gray-600">{needyEmail}</span>
+          <div className="flex items-center space-x-3 bg-gray-50 px-4 py-2 rounded-lg">
+            <Mail className="w-4 h-4 text-gray-600" />
+            <div className="text-right">
+              <p className="text-xs text-gray-500">Logged in as</p>
+              <p className="text-sm font-medium text-gray-800">{needyEmail || 'Loading...'}</p>
+            </div>
           </div>
         </div>
       </header>
@@ -39,7 +43,14 @@ const NeedyDashboard = () => {
       <div className="max-w-4xl mx-auto px-6 py-8">
         <div className="mb-8">
           <div className="flex justify-between items-start mb-4">
-            <h2 className="text-2xl font-bold text-gray-800">Welcome</h2>
+            <div>
+              <h2 className="text-2xl font-bold text-gray-800">
+                Welcome, {needyEmail ? needyEmail.split('@')[0] : 'User'}! 🌟
+              </h2>
+              <p className="text-gray-600 text-sm mt-1">
+                Let's find the support you need
+              </p>
+            </div>
             <button
               onClick={handleLogout}
               className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"

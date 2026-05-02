@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Plus, Edit, Trash2, Calendar, Package, Building2, AlertTriangle, Filter, SortAsc, User, Clock, Shield, Eye, Mail } from 'lucide-react';
-
+import { API_BASE_URL } from './axiosConfig';
 const MedicineListing = () => {
   const navigate = useNavigate();
   const [userEmail, setUserEmail] = useState('');
@@ -29,7 +29,7 @@ const MedicineListing = () => {
     }
     setIsLoading(true);
     try {
-      const res = await fetch(`http://localhost:5000/api/donors/availmed/${emailId}`);
+      const res = await fetch(`${API_BASE_URL}/donors/availmed/${emailId}`);
       const data = await res.json();
       if (res.ok) {
         setMedicines(data.medicines);
@@ -53,7 +53,7 @@ const MedicineListing = () => {
  const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this medicine?')) return;
     try {
-      const res = await fetch(`http://localhost:5000/api/donors/availmed/${id}`, { method: 'DELETE' });
+      const res = await fetch(`${API_BASE_URL}/donors/availmed/${id}`, { method: 'DELETE' });
       const data = await res.json();
       if (res.ok) {
         setMedicines((prev) => prev.filter((med) => med._id !== id));

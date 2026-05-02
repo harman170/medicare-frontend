@@ -70,7 +70,7 @@ const AvailMedForm = () => {
 
   const fetchUserMedicines = async () => {
     try {
-      const response = await axios.get(`/api/donors/availmed/${userEmail}`);
+      const response = await axios.get(`/donors/availmed/${userEmail}`);
       console.log('Fetched medicines response:', response.data);
       // Backend returns { medicines: [...] }, so extract the medicines array
       setUserMedicines(response.data.medicines || []);
@@ -109,7 +109,7 @@ const AvailMedForm = () => {
 
       if (isEditing && formData._id) {
         console.log('UPDATE MODE');
-        url = `/api/donors/availmed/${formData._id}`;
+        url = `/donors/availmed/${formData._id}`;
         method = 'put';
         requestBody = {
           ...formData,
@@ -118,7 +118,7 @@ const AvailMedForm = () => {
         };
       } else {
         console.log('CREATE MODE');
-        url = '/api/donors/availmed';
+        url = '/donors/availmed';
         method = 'post';
         requestBody = {
           ...formData,
@@ -188,7 +188,7 @@ const AvailMedForm = () => {
     }
 
     try {
-      await axios.delete(`/api/donors/availmed/${id}`);
+      await axios.delete(`/donors/availmed/${id}`);
       setSubmitMessage('Medicine deleted successfully!');
       setSubmitType('delete');
       fetchUserMedicines();

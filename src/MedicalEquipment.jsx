@@ -5,7 +5,7 @@ import {
   Building, Clock, CheckCircle, X, Search, Eye
 } from 'lucide-react';
 
-import axios from 'axios';
+import axios from './axiosConfig';
 
 const MedicalDonationPlatform = () => {
   const [userEmail, setUserEmail] = useState('');
@@ -88,7 +88,7 @@ const MedicalDonationPlatform = () => {
     }
 
     try {
-      const res = await axios.get('/api/donations');
+      const res = await axios.get('/donations');
       const foundDonation = res.data.find(donation =>
         donation.email.toLowerCase() === searchEmail.toLowerCase().trim()
       );
@@ -150,7 +150,7 @@ const MedicalDonationPlatform = () => {
     }
 
     try {
-      const res = await axios.get('/api/donations');
+      const res = await axios.get('/donations');
       const filtered = res.data.filter(donation =>
         donation.email.toLowerCase().includes(searchEmail.toLowerCase())
       );
@@ -176,7 +176,7 @@ const MedicalDonationPlatform = () => {
   const fetchAllDonations = async () => {
     try {
       console.log('Fetching all donations...');
-      const res = await axios.get('/api/donations');
+      const res = await axios.get('/donations');
       console.log('All donations response:', res.data);
 
       if (res.data.length === 0) {
@@ -224,8 +224,8 @@ const MedicalDonationPlatform = () => {
 
     try {
       const url = isEditing && donationId
-        ? `/api/donations/${donationId}`
-        : '/api/donations';
+        ? `/donations/${donationId}`
+        : '/donations';
 
       const method = isEditing && donationId ? 'put' : 'post';
 

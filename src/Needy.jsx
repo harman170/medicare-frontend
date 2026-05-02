@@ -1,6 +1,7 @@
 import React, { useState,useEffect } from 'react';
 import { Upload, User, Phone, Mail, Calendar, MapPin, FileText, Send, Edit3, Camera, CheckCircle, AlertCircle } from 'lucide-react';
 import axios from 'axios';
+import { API_BASE_URL } from './axiosConfig';
 
 
 
@@ -187,7 +188,7 @@ if (text) {
     }
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:5000/api/needy/get/${formData.emailId}`);
+      const res = await fetch(`${API_BASE_URL}/needy/get/${formData.emailId}`);
       const data = await res.json();
       if (res.ok) {
         setFormData(data);
@@ -209,7 +210,7 @@ if (text) {
     }
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:5000/api/needy/update/${formData.emailId}`, {
+      const res = await fetch(`${API_BASE_URL}/needy/update/${formData.emailId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
@@ -239,7 +240,7 @@ if (text) {
 
   setLoading(true);
   try {
-    const res = await fetch('http://localhost:5000/api/needy/create', {
+    const res = await fetch(`${API_BASE_URL}/needy/create`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

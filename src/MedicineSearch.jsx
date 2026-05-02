@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Search, MapPin, Pill, Building, Filter, X, CheckCircle, AlertCircle, Clock, Package } from 'lucide-react';
-import axios from 'axios';
+import axios from './axiosConfig';
 
 const MedicineSearchPage = () => {
   const [userEmail, setUserEmail] = useState('');
@@ -34,7 +34,7 @@ const MedicineSearchPage = () => {
     const fetchCities = async () => {
       try {
         console.log('Fetching cities from backend...');
-        const response = await axios.get('/api/donors/cities');
+        const response = await axios.get('/donors/cities');
         console.log('Cities API response:', response.data);
 
         if (response.data.cities && response.data.cities.length > 0) {
@@ -57,7 +57,7 @@ const MedicineSearchPage = () => {
     const fetchMedicines = async () => {
       try {
         console.log('Fetching medicines from backend...');
-        const response = await axios.get('/api/donors/medicines');
+        const response = await axios.get('/donors/medicines');
         console.log('Medicines API response:', response.data);
 
         if (response.data.medicines && response.data.medicines.length > 0) {
@@ -87,7 +87,7 @@ const MedicineSearchPage = () => {
 
     try {
       console.log('Searching for:', { city: selectedCity, medicine: selectedMedicine });
-      const response = await axios.get(`http://localhost:5000/api/donors/search?city=${selectedCity}&medicine=${selectedMedicine}`);
+      const response = await axios.get(`/donors/search?city=${selectedCity}&medicine=${selectedMedicine}`);
       console.log('Search results:', response.data);
       setSearchResults(response.data || []);
     } catch (error) {

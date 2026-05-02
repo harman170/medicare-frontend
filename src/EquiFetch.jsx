@@ -3,45 +3,7 @@ import {
   Heart, Search, MapPin, Phone, Mail, Package, User,
   CheckCircle, AlertCircle, Send, RefreshCw, Calendar, PauseCircle,XCircle
 } from 'lucide-react';
-import axios from 'axios';
-
-const handleSearch = async () => {
-  setLoading(true);
-  setHasSearched(true);
-
-  try {
-    const response = await axios.get('http://localhost:5000/api/donations/search-equipment', {
-      params: {
-        city: selectedCity,
-        equipment: selectedEquipment
-      }
-    });
-
-    let filtered = response.data;
-
-    // Filter by city
-    if (selectedCity && selectedCity !== 'All Cities') {
-      filtered = filtered.filter(donor => donor.city === selectedCity);
-    }
-
-    // Filter by equipment
-    if (selectedEquipment && selectedEquipment !== 'All Equipment') {
-      filtered = filtered.filter(donor =>
-        donor.equipment.some(item => item.item === selectedEquipment)
-      );
-    }
-
-    setSearchResults(filtered);
-  } catch (err) {
-    console.error('Search failed:', err);
-    setSearchResults([]);
-  }
-
-  setLoading(false);
-};
-
-
-
+import axios from './axiosConfig';
 const NeedySearch = () => {
   const [selectedCity, setSelectedCity] = useState('');
   const [selectedEquipment, setSelectedEquipment] = useState('');
@@ -76,7 +38,7 @@ const NeedySearch = () => {
   setHasSearched(true);
 
   try {
-    const response = await axios.get('http://localhost:5000/api/donations/search-equipment', {
+    const response = await axios.get('/donations/search-equipment', {
       params: {
         city: selectedCity,
         equipment: selectedEquipment

@@ -39,9 +39,9 @@ const FindDonors = () => {
     try {
       console.log('=== SEARCH DEBUG ===');
       console.log('Searching for:', { city, medicine });
-      console.log('Search URL:', `/api/donors/search?city=${encodeURIComponent(city)}&medicine=${encodeURIComponent(medicine)}`);
+      console.log('Search URL:', `/donors/search?city=${encodeURIComponent(city)}&medicine=${encodeURIComponent(medicine)}`);
 
-      const response = await axios.get(`/api/donors/search?city=${encodeURIComponent(city)}&medicine=${encodeURIComponent(medicine)}`);
+      const response = await axios.get(`/donors/search?city=${encodeURIComponent(city)}&medicine=${encodeURIComponent(medicine)}`);
       const data = response.data;
 
       console.log('Backend response:', data);

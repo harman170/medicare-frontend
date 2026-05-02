@@ -16,7 +16,7 @@ const DonorDashboard = () => {
   const handleLogout = () => {
     localStorage.removeItem('userEmail');
     localStorage.removeItem('userType');
-    window.location.href = 'http://localhost:5173/';
+    navigate('/');
   };
 
    const handleCardClick = (cardType) => {

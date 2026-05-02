@@ -100,7 +100,7 @@ if (profilepic) fd.append("profilepic", profilepic);
     setIsLoading(true);
     try {
       const url = action === 'save' ? 'save' : 'update';
-      const res = await axios.post(`http://localhost:5000/api/donors/${url}`, fd, {
+      const res = await apiClient.post(`/donors/${url}`, fd, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       alert(res.data.msg);

@@ -115,6 +115,7 @@ const getUserEmailFromStorage = () => {
 
       const text = await extractTextFromImage(imageUrl);
       console.log("Extracted text:", text);
+      setText(text);  // 👈 Sets for visual debug
 if (fieldName === 'frontAdharUrl') {
   // Extract Gender
   const genderMatch = text.match(/(Male|Female|Other)/i);
@@ -168,17 +169,6 @@ const dob = dobMatch ? dobMatch[1] : fallbackDob;
     } finally {
       setLoading(false);
     }
-    const extractedText = await extractTextFromImage(imageUrl);
-     setText(extractedText);  // 👈 Sets for visual debug
-
-
-     console.log("Raw OCR Text:", text);
-if (text) {
-  console.log("Attempting to extract:");
-  console.log("Name pattern match:", text.match(/(?:Name|नाम|NAME)\s*[:]?\s*([A-Za-z\s.]+)/im));
-  console.log("DOB pattern match:", text.match(/(?:DOB|Date of Birth|जन्म तिथि|Year of Birth)\s*[:]?\s*(\d{2}\/\d{2}\/\d{4}|\d{2}-\d{2}-\d{4})/im));
-  console.log("Gender pattern match:", text.match(/\b(Male|Female|Transgender|MALE|FEMALE|पुरुष|महिला)\b/im));
-}
   };
 
   const handleFetch = async () => {

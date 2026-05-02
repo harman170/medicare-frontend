@@ -23,16 +23,7 @@ const NeedyProfileForm = ({ user }) => {  // Accept user prop
   const [text, setText] = useState('');
 
 const getUserEmailFromStorage = () => {
-  const userData = localStorage.getItem('medishare_user_data');
-  if (userData) {
-    try {
-      const user = JSON.parse(userData);
-      return user.email || '';
-    } catch {
-      return '';
-    }
-  }
-  return '';
+  return localStorage.getItem('userEmail') || '';
 };
 
  useEffect(() => {
